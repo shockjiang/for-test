@@ -24,18 +24,6 @@ class MNISTDataset(Dataset):
         return img, label
 
 
-class SimpleDataset(Dataset):
-    def __init__(self):
-        self.data = torch.randn(100, 3, 224, 224)  # 100张假图片
-        self.labels = torch.randint(0, 2, (100,))   # 2个类别
-
-    def __len__(self):
-        return len(self.data)
-
-    def __getitem__(self, idx):
-        return self.data[idx], self.labels[idx]
-
-
 class SimpleModel(nn.Module):
     def __init__(self):
         super().__init__()
