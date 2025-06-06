@@ -18,7 +18,7 @@ class SimpleModel(nn.Module):
     def __init__(self):
         super().__init__()
         self.conv = nn.Conv2d(3, 16, kernel_size=3)
-        self.fc = nn.Linear(222 * 222, 2)  # Bug 1: 错误的输出尺寸计算
+        self.fc = nn.Linear(222 * 222, 2)
     
     def forward(self, x):
         x = self.conv(x)
@@ -36,12 +36,10 @@ def train():
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters())
     
-    # Bug 2: 忘记将模型和数据移动到设备
     # model.to(device)
     
     for epoch in range(2):
         for inputs, labels in dataloader:
-            # Bug 3: 忘记将数据移动到设备
             inputs, labels = inputs.to(device), labels.to(device)
             
             optimizer.zero_grad()
