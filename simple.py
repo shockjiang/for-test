@@ -39,30 +39,34 @@ class SimpleDataset(Dataset):
 class SimpleModel(nn.Module):
     def __init__(self):
         super().__init__()
-        self.conv = nn.Conv2d(in_channels=3, out_channels=16, kernel_size=3,  stride=1, padding=0)
-        self.fc = nn.Linear(in_features=222 * 222, out_features=2)
+        self.conv = nn.Conv2d(in_channels=1, out_channels=16, kernel_size=3,  stride=1, padding=1)
+        self.relu = nn.ReLU()
+        self.maxpool = nn.MaxPool2d(kernel_size=2, stride=2)
+        self.linear = nn.Linear(16 * 14 * 14, 10)
 
     def forward(self, x):
         x = self.conv(x)
+        x = self.relu(x)
+        x = self.maxpool(x)
         x = x.view(x.size(0), -1)
-        x = self.fc(x)
+        x = self.linear(x)
         return x
 
 
-def train():
+def main():
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
-    dataset = SimpleDataset()
-    dataloader = DataLoader(dataset, batch_size=10, shuffle=True)
+    dataset = MNISTDataset()
+    dataloader = DataLoader(dataset, batch_size=50, shuffle=True)
 
     model = SimpleModel()
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters())
 
     # model.to(device)
-
-    for epoch in range(2):
-        for inputs, labels in dataloader:
+    
+    for epoch in range(1):
+        for iter, (inputs, labels) in enumerate(dataloader):
             inputs, labels = inputs.to(device), labels.to(device)
 
             optimizer.zero_grad()
@@ -70,9 +74,22 @@ def train():
             loss = criterion(outputs, labels)
             loss.backward()
             optimizer.step()
+            if iter % 500 == 0:
+                print(f"Epoch {epoch}, Loss: {loss.item()}")
 
-            print(f"Epoch {epoch}, Loss: {loss.item()}")
+    
+    
+    """请在训练集上评测模型准确率，可能会用到：
+    https://pytorch.ac.cn/docs/stable/generated/torch.argmax.html
+    https://pytorch.ac.cn/docs/stable/generated/torch.sum.html#torch.sum"""
+    with torch.no_grad():
+        num_correct = 0
+        for inputs, labels in dataloader:
+            inputs= inputs.to(device)
+            outputs = model(inputs)
+            num_correct += (outputs.argmax(1) == labels).sum().item()
+        print(f"Metric: {num_correct / len(dataset) * 100:.2f}%")
 
 
 if __name__ == "__main__":
-    train()
+    main()
