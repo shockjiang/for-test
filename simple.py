@@ -82,13 +82,6 @@ def main():
     """请在训练集上评测模型准确率，可能会用到：
     https://pytorch.ac.cn/docs/stable/generated/torch.argmax.html
     https://pytorch.ac.cn/docs/stable/generated/torch.sum.html#torch.sum"""
-    with torch.no_grad():
-        num_correct = 0
-        for inputs, labels in dataloader:
-            inputs= inputs.to(device)
-            outputs = model(inputs)
-            num_correct += (outputs.argmax(1) == labels).sum().item()
-        print(f"Metric: {num_correct / len(dataset) * 100:.2f}%")
 
 
 if __name__ == "__main__":
