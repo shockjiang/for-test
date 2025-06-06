@@ -1,7 +1,27 @@
+from torchvision import datasets, transforms
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader
+
+
+class MNISTDataset(Dataset):
+    def __init__(self, is_train=True):
+        self.data = datasets.MNIST(
+            root='./data',
+            train=is_train,
+            download=True,
+            transform=transforms.ToTensor()
+        )
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        img, label = self.data[idx]
+        # img.shape =(1, 28, 28)
+        # label, int [0, 9]
+        return img, label
 
 
 class SimpleDataset(Dataset):
@@ -20,7 +40,7 @@ class SimpleModel(nn.Module):
     def __init__(self):
         super().__init__()
         self.conv = nn.Conv2d(in_channels=3, out_channels=16, kernel_size=3,  stride=1, padding=0)
-        self.fc = nn.Linear(in_features=222 * 222, out_features=2, bias=True)
+        self.fc = nn.Linear(in_features=222 * 222, out_features=2)
 
     def forward(self, x):
         x = self.conv(x)
